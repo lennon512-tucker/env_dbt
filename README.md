@@ -2,15 +2,27 @@
 
 dbtenv is a version manager for dbt, automatically installing and switching to the needed adapter and version of [dbt](https://docs.getdbt.com/docs/introduction).
 
+## Quickstart
+### Installation
 
-## Installation
+1. Install [pipx](https://pypa.github.io/pipx/) ([What is pipx?](https://www.google.com/search?q=pipx&rlz=1C5GCEM_enGB953GB953&oq=Pipx&aqs=chrome.0.69i59i512j0i512l2j69i59j0i512l2j69i60l2.1010j0j7&sourceid=chrome&ie=UTF-8)).
+2. Run `pipx install dbtenv[dbt-alias]`.
 
-1. Install [pipx](https://pypa.github.io/pipx/) if you haven't already.
-2. Run `pipx install dbtenv`.
+### Usage
+If the `dbt-alias` extra is installed (`dbtenv[dbt-alias]`), dbt commands can be used as normal and will be routed through dbtenv. dbtenv will automatically determine, install and use the required dbt adapter and version.
 
-## Basic example usage
+Illustrative example
+```
+dbt --version
+dbtenv info:  Using dbt-bigquery==1.0.0 (set by dbt_project.yml).
+installed version: 1.0.4
+   latest version: 1.0.4
 
-Run `dbtenv execute -- build` in a dbt project, and dbtenv will automatically download the required adapter and version for the project and run `dbt build`. We recommend [setting up an alias to dbtenv](https://github.com/brooklyn-data/dbtenv#running-dbt-with-dbtenv-more-seamlessly) so that you can run dbt commands as normal but through dbtenv.
+Up to date!
+
+Plugins:
+  - bigquery: 1.0.0 - Up to date!
+```
 
 
 ## How it works
@@ -49,36 +61,23 @@ dbtenv determines which dbt version to use by trying to read it from the followi
 8. The max installable dbt version (preferring stable versions).
 
 You can:
-- Run `dbtenv version` to show which dbt version dbtenv determines dynamically based on the current environment.
-- Run `dbtenv which` to show the full path to the executable of the dbt version dbtenv determines dynamically based on the current environment.
+- Run `dbtenv version` to show which dbt version dbtenv determines automatically based on the current environment.
+- Run `dbtenv which` to show the full path to the executable of the dbt version dbtenv determines automatically based on the current environment.
 - Run `dbtenv version --global <version>` to set the dbt version globally in the `~/.dbt/version` file. The `<version>` can be either a dbt version (e.g. 1.0.0) or full pip specifier (e.g. dbt-snowflake==1.0.0). dbtenv will attempt to automatically detect the required adapter or version from the environment if not specified.
 - Run `dbtenv version --local <version>` to set the dbt version for the current directory in a `.dbt_version` file. The `<version>` can be either a dbt version (e.g. 1.0.0) or full pip specifier (e.g. dbt-snowflake==1.0.0). dbtenv will attempt to automatically detect the required adapter or version from the environment if not specified.
 
 ### Running dbt through dbtenv
-Run `dbtenv execute -- <dbt arguments>` to execute the dbt version determined dynamically based on the current environment, or run `dbtenv execute --dbt <version> -- <dbt arguments>` to execute the specified dbt version.
+There are two ways of running dbt with dbtenv, the first is to use the `dbtenv execute` command, and the second is to install the `dbtenv-dbt-alias` package included in the `[dbt-alias]` extra, creating a `dbt` entrypoint which acts as a shortcut to `dbtenv execute`.
+
+Run `dbtenv execute -- <dbt arguments>` to execute the dbt version determined automatically based on the current environment, or run `dbtenv execute --dbt <version> -- <dbt arguments>` to execute the specified dbt version.
 
 For example:
-- `dbtenv execute -- run` will execute `dbt run` using the version determined dynamically based on the current environment.
+- `dbtenv execute -- run` will execute `dbt run` using the version determined automatically based on the current environment.
 - `dbtenv execute --dbt 1.0.0 -- run` will execute `dbt run` using dbt 1.0.0, automatically detecting the required adapter from the default target in `profiles.yml`.
 - `dbtenv execute --dbt 1.0.0 -- run --target prod` will execute `dbt run` using dbt 1.0.0, using the required adapter for the 'prod' target in `profiles.yml`.
 - `dbtenv execute --dbt 1.0.0==dbt-bigquery -- run` will execute `dbt run` using dbt-bigquery==1.0.0.
 
 **Important:**  It's highly recommended to put two dashes with spaces on both sides before the list of dbt arguments (as shown in the examples above) so that dbtenv doesn't try to interpret the dbt arguments itself.
-
-### Running dbt with dbtenv more seamlessly
-For a more seamless experience you can define a `dbt` alias or function in your shell to run `dbtenv execute -- <dbt arguments>` and dynamically determine which dbt version to use whenever you type dbt commands like `dbt run` or `dbt test`.
-
-Some examples:
-- In **bash** you could add the following alias in your `~/.bash_profile` file:
-  ```bash
-  alias dbt='dbtenv execute --'
-  ```
-- In **Windows PowerShell** aliases can't include additional arguments, but you could add the following function in your `~\Documents\PowerShell\Microsoft.PowerShell_profile.ps1` file:
-  ```PowerShell
-  function dbt { dbtenv execute -- @Args }
-  ```
-
-Note that after adding such a `dbt` alias/function to your shell profile you'll need to reload the profile to activate it (e.g. by running `. ~/.bash_profile` in bash, or `. $PROFILE` in PowerShell).
 
 ### Uninstalling dbt versions
 You can run `dbtenv versions --installed` to list the versions of dbt that dbtenv has installed in Python virtual environments and/or with Homebrew, and then run `dbtenv uninstall <version>` to uninstall a version.
@@ -89,6 +88,6 @@ You can run `dbtenv versions --installed` to list the versions of dbt that dbten
 ### Development setup
 1. Clone this repository onto your computer.
 2. Install Poetry `pipx install poetry` ([What is pipx?](https://www.google.com/search?q=pipx&rlz=1C5GCEM_enGB953GB953&oq=Pipx&aqs=chrome.0.69i59i512j0i512l2j69i59j0i512l2j69i60l2.1010j0j7&sourceid=chrome&ie=UTF-8))
-3. Install this project into a virtual environment `poetry install`
+3. Navigate to the `dbtenv` directory, and install the project into a virtual environment `poetry install`
 4. Activate the virtual environment `poetry shell`
 5. Any `dbtenv` commands will run using the local version of the project.
